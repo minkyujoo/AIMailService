@@ -89,6 +89,7 @@ namespace AIMailService.Svc
             // 입력 값들은 나중에 받아
             return GetAibrilResponse("76a465cb-b18a-43a0-9fd3-bf23b516a9c3", "8aa89312-8388-411a-bb59-3c5a097d398e", "TodLttJ1ikx7", sentence);
         }
+
     }
 }
 

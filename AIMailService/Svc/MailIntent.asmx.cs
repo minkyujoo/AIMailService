@@ -18,17 +18,21 @@ namespace AIMailService.Svc
     {
         private MailAIIntent mailIntent = new MailAIIntent();
         [WebMethod]
-        public string GetMailIntent(string subOrBody)
+        public string GetMailIntentFromSubject(string subOrBody)
         {
-            return mailIntent.GetMailIent(subOrBody);
-            return "Reply:0.77777777";
+            string reMessage = string.Empty;
+            reMessage =  mailIntent.GetMailIent(subOrBody);
+            //return "Reply:0.77777777";
+            return reMessage;
         }
 
         [WebMethod]
-        public string GetMailIntent(string subject, string body)
+        public string GetMailIntentFromSubjectAndBody(string subject, string body)
         {
-            return mailIntent.GetMailIent(subject, body);
+            string reMessage = string.Empty;
+            reMessage =  mailIntent.GetMailIent(subject, body);
             //return "Reply:0.77777777"; // 답변필요: 70%
+            return reMessage;
         }
     }
 }

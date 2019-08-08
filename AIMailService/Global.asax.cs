@@ -25,12 +25,13 @@ namespace AIMailService
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
-        protected void Application_Error(object sender, EventArgs e)
-        {
-            log.Fatal("Site Application_Error", Server.GetLastError());
-            Response.Redirect("/SiteException.aspx", false);
-            System.Web.HttpContext.Current.ApplicationInstance.CompleteRequest();
-            Server.ClearError();
-        }
+
+        //protected void Application_Error(object sender, EventArgs e)
+        //{
+        //    //log.Fatal("Site Application_Error", Server.GetLastError());
+        //    Response.Redirect("/SiteException.aspx", false);
+        //    System.Web.HttpContext.Current.ApplicationInstance.CompleteRequest();
+        //    Server.ClearError();
+        //}
     }
 }
