@@ -20,7 +20,7 @@ namespace AIMailService.Svc
             this.isImportance = isImportance;
             this.intent = intent;
             this.confidence = confidence;
-            this.returnMessage = intent + confidence.ToString(); // 이거는 나중에 tuning 필요
+            this.returnMessage = intent + ": " + (confidence * 100).ToString() + "%"; // 이거는 나중에 tuning 필요
         }
 
         public IntentEntity(string intent, double confidence)

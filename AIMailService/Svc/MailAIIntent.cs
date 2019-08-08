@@ -27,30 +27,26 @@ namespace AIMailService.Svc
 
             // subject intent
             IntentEntity subjectImportance = IsImportance(subject);
-            if (subjectImportance.isImportance)
+            if (subjectImportance != null)
             {
-                strReturn = subjectImportance.returnMessage;
-                return strReturn;
+                return subjectImportance.returnMessage;
             }
 
             // body intent
             strBody = GetRealBody(body);
-            List<string> sentences = GetSentences(body);
+            List<string> sentences = GetSentences(strBody);
             List<IntentEntity> bodyIntents = new List<IntentEntity>();
-            
+
             try
             {
                 string strTemp = string.Empty;
-                bool isImportance = false;
                 foreach (string sentence in sentences)
                 {
-                    isImportance = false;
-                    // format: strIntent, decimalConfidence
                     strTemp = helper.GetAibrilResponse(sentence);
-                    if (GetConfidenceFromResponse(strTemp) > importanceLevel){
-                        isImportance = true;
+                    if (GetConfidenceFromResponse(strTemp) > importanceLevel && GetIntentFromResponse(strTemp).ToLower()!= "other")
+                    {
+                        bodyIntents.Add(new IntentEntity(true, GetIntentFromResponse(strTemp), GetConfidenceFromResponse(strTemp)));
                     }
-                    bodyIntents.Add(new IntentEntity(isImportance,GetIntentFromResponse(strTemp), GetConfidenceFromResponse(strTemp)));
                 }
             }
             catch (Exception e) // maybe network, timeout etc.
@@ -59,9 +55,12 @@ namespace AIMailService.Svc
             }
 
             IntentEntity ieBody = IsImportance(bodyIntents);
-            if (ieBody.confidence > importanceLevel)
+            if (ieBody != null)
             {
-                strReturn = ieBody.returnMessage; 
+                if (ieBody.confidence > importanceLevel)
+                {
+                    strReturn = ieBody.returnMessage;
+                }
             }
 
             return strReturn;
@@ -74,17 +73,22 @@ namespace AIMailService.Svc
         /// <returns></returns>
         public string GetMailIent(string subject)
         {
-            return IsImportance(subject).returnMessage;
+            IntentEntity ie = IsImportance(subject);
+            if (ie != null)
+            {
+                return ie.returnMessage;
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
         #region "IsImportance"
         private IntentEntity IsImportance(string subject, List<IntentEntity> intents)
         {
-            // subject importance first
-            // body importance 2nd
             if (IsImportance(subject).isImportance) { return IsImportance(subject); }
-            IntentEntity ie = IsImportance(intents);
-            return ie;
+            return IsImportance(intents);
         }
 
         private IntentEntity IsImportance(string subject)
@@ -94,15 +98,16 @@ namespace AIMailService.Svc
             IntentEntity roIntent = null;
             foreach (string dicImportant in dicImportanceSubject)
             {
-                if (subject.StartsWith(dicImportant)) {
-                    roIntent= new IntentEntity(true,"dicImportant", 1, "Important(" + dicImportant + "): 100%");
+                if (subject.StartsWith(dicImportant))
+                {
+                    roIntent = new IntentEntity(true, "dicImportant", 1, "Important(" + dicImportant + "): 100%");
                 }
             }
             // 2. Aibril API
-            string strIntent = helper.GetAibrilResponse(subject);
-            if (GetConfidenceFromResponse(strIntent) > importanceLevel)
+            string strTemp = helper.GetAibrilResponse(subject);
+            if (GetConfidenceFromResponse(strTemp) > importanceLevel && GetIntentFromResponse(strTemp).ToLower() != "other")
             {
-                roIntent = new IntentEntity(true, GetIntentFromResponse(strIntent), GetConfidenceFromResponse(strIntent));
+                roIntent = new IntentEntity(true, GetIntentFromResponse(strTemp), GetConfidenceFromResponse(strTemp));
             }
             return roIntent;
         }
@@ -112,13 +117,15 @@ namespace AIMailService.Svc
             IntentEntity ie = null;
             // 1. sorting
             intents.Sort();
-            if (intents[0].confidence > importanceLevel) {
-                ie = intents[0];
+            if (intents.Count != 0)
+            {
+                if (intents[0].confidence > importanceLevel)
+                {
+                    ie = intents[0];
+                }
             }
-
             // 2. sum by intent
             // for multi intents
-
             return ie;
         }
         #endregion
@@ -136,7 +143,8 @@ namespace AIMailService.Svc
             string[] arrSentences = realBody.Split("\r\n".ToCharArray());
 
             string strTemp = string.Empty;
-            for (int i = 0; i < arrSentences.Length; i++) {
+            for (int i = 0; i < arrSentences.Length; i++)
+            {
                 strTemp = arrSentences[i].Trim();
                 if (!string.IsNullOrEmpty(strTemp))
                 {
@@ -164,9 +172,9 @@ namespace AIMailService.Svc
             return decConfidence;
         }
 
-        private string GetRealBody(string bodyHTML)
+        private string GetRealBody(string body)
         {
-            string realBody = bodyHTML;
+            string realBody = body;
             // to be implemented
             // 내용만 추출하는 방법. (구현필요)
             // 1. WordSection1을 찾는다.

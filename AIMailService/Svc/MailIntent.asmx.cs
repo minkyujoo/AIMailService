@@ -20,19 +20,13 @@ namespace AIMailService.Svc
         [WebMethod]
         public string GetMailIntentFromSubject(string subOrBody)
         {
-            string reMessage = string.Empty;
-            reMessage =  mailIntent.GetMailIent(subOrBody);
-            //return "Reply:0.77777777";
-            return reMessage;
+            return  mailIntent.GetMailIent(subOrBody);
         }
 
         [WebMethod]
         public string GetMailIntentFromSubjectAndBody(string subject, string body)
         {
-            string reMessage = string.Empty;
-            reMessage =  mailIntent.GetMailIent(subject, body);
-            //return "Reply:0.77777777"; // 답변필요: 70%
-            return reMessage;
+            return  mailIntent.GetMailIent(subject, body);
         }
     }
 }
